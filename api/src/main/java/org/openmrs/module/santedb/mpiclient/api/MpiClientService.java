@@ -18,6 +18,8 @@ package org.openmrs.module.santedb.mpiclient.api;
 import java.util.Date;
 import java.util.List;
 
+import javax.transaction.NotSupportedException;
+
 import org.dcm4che3.net.audit.AuditLogger;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -38,25 +40,26 @@ public interface MpiClientService extends OpenmrsService {
 	 * patients matching the supplied string 
 	 * @param patientSearchString
 	 * @return
+	 * @throws NotSupportedException 
 	 */
-	public List<MpiPatient> searchPatient(String familyName, String givenName, Date dateOfBirth, boolean fuzzyDate, String gender, String stateOrRegion, String cityOrTownship, PatientIdentifier patientIdentifier,  PatientIdentifier mothersIdentifier, String nextOfKinName, String birthPlace) throws MpiClientException;
+	public List<MpiPatient> searchPatient(String familyName, String givenName, Date dateOfBirth, boolean fuzzyDate, String gender, String stateOrRegion, String cityOrTownship, PatientIdentifier patientIdentifier,  PatientIdentifier mothersIdentifier, String nextOfKinName, String birthPlace) throws MpiClientException, NotSupportedException;
 	
 	/**
 	 * Searches for patients with the specified patient identity string 
 	 */
-	public MpiPatient getPatient(String identifier, String assigningAuthority) throws MpiClientException;
+	public MpiPatient getPatient(String identifier, String assigningAuthority) throws MpiClientException, NotSupportedException;
 	
 	/**
 	 * Resolve an HIE patient identifier 
 	 * @throws MpiClientException 
 	 */
-	public PatientIdentifier resolvePatientIdentifier(Patient patient, String toAssigningAuthority) throws MpiClientException;
+	public PatientIdentifier resolvePatientIdentifier(Patient patient, String toAssigningAuthority) throws MpiClientException, NotSupportedException;
 	
 	/**
 	 * Forces an update of the patient's ECID data
 	 * @param patient
 	 */
-	public void synchronizePatientEnterpriseId(Patient patient) throws MpiClientException;
+	public void synchronizePatientEnterpriseId(Patient patient) throws MpiClientException, NotSupportedException;
 	
 	/**
 	 * Import the specified patient data from the PDQ supplier
@@ -65,7 +68,7 @@ public interface MpiClientService extends OpenmrsService {
 	 * @return
 	 * @throws MpiClientException 
 	 */
-	public Patient importPatient(MpiPatient patient) throws MpiClientException;
+	public Patient importPatient(MpiPatient patient) throws MpiClientException, NotSupportedException;
 	
 	/**
 	 * Matches an external patient with an internal 
@@ -76,18 +79,18 @@ public interface MpiClientService extends OpenmrsService {
 	 * Export patient demographic record to the CR
 	 * @param patient
 	 */
-	public void exportPatient(Patient patient) throws MpiClientException;
+	public void exportPatient(Patient patient) throws MpiClientException, NotSupportedException;
 
 	/**
 	 * Export patient demographic record to the CR
 	 * @param patient
 	 */
-	public void updatePatient(Patient patient) throws MpiClientException;
+	public void updatePatient(Patient patient) throws MpiClientException, NotSupportedException;
 
 	/**
 	 * Get the audit logger
 	 */
-	public AuditLogger getAuditLogger();
+	public AuditLogger getAuditLogger() throws NotSupportedException;
 	
 	
 }

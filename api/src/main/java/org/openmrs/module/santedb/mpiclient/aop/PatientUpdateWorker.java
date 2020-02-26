@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.transaction.NotSupportedException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.marc.everest.datatypes.generic.LIST;
@@ -98,6 +100,8 @@ public class PatientUpdateWorker extends Thread {
 				}
 			}
 		} catch (MpiClientException e) {
+			log.error(e);
+		} catch (NotSupportedException e) {
 			log.error(e);
 		} finally {
 			Context.closeSession();

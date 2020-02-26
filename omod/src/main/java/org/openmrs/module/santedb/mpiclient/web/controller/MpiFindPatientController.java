@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.NotSupportedException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.PatientIdentifier;
@@ -93,6 +95,11 @@ public class MpiFindPatientController {
 			return new ModelAndView("/module/santedb-mpiclient/mpiFindPatient", model);
 		} catch (MpiClientException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+			model.put("successful", false);
+			model.put("error", e.getMessage());
+			return new ModelAndView("/module/santedb-mpiclient/mpiFindPatient", model);
+		} catch (NotSupportedException e) {
 			e.printStackTrace();
 			model.put("successful", false);
 			model.put("error", e.getMessage());

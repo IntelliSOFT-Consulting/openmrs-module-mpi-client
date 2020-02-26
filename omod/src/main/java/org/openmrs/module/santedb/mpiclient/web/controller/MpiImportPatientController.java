@@ -4,6 +4,8 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 
+import javax.transaction.NotSupportedException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
@@ -58,7 +60,10 @@ public class MpiImportPatientController {
 			return new ModelAndView("/module/santedb-mpiclient/mpiImportPatient", model);
 		}
 		catch(MpiClientException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+			model.put("error", e.getMessage());
+			return new ModelAndView("/module/santedb-mpiclient/mpiImportPatient", model);
+		} catch (NotSupportedException e) {
 			e.printStackTrace();
 			model.put("error", e.getMessage());
 			return new ModelAndView("/module/santedb-mpiclient/mpiImportPatient", model);
@@ -94,6 +99,11 @@ public class MpiImportPatientController {
 			return new ModelAndView("redirect:/kenyaemr/registration/registrationViewPatient.page?patientId=" + createdPat.getId().toString() );
 		}
 		catch(MpiClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			model.put("error", e.getMessage());
+			return new ModelAndView("/module/santedb-mpiclient/mpiImportPatient", model);
+		} catch (NotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			model.put("error", e.getMessage());

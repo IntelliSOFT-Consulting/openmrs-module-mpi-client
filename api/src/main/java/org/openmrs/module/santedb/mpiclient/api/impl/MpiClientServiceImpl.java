@@ -19,6 +19,8 @@ package org.openmrs.module.santedb.mpiclient.api.impl;
 import java.util.Date;
 import java.util.List;
 
+import javax.transaction.NotSupportedException;
+
 import org.dcm4che3.net.audit.AuditLogger;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -38,7 +40,6 @@ import org.openmrs.module.santedb.mpiclient.model.MpiPatient;
 public class MpiClientServiceImpl extends BaseOpenmrsService
 		implements MpiClientService {
 
-	private FhirMpiClientServiceImpl m_fhirService;
 	private HL7MpiClientServiceImpl m_hl7Service;
 	// Get health information exchange information
 	private MpiClientConfiguration m_configuration = MpiClientConfiguration.getInstance();
@@ -58,19 +59,19 @@ public class MpiClientServiceImpl extends BaseOpenmrsService
 	 * @summary Creates a new instance of the MPI Client Service Implementation
 	 */
 	public MpiClientServiceImpl() {
-		this.m_fhirService = new FhirMpiClientServiceImpl(); // TODO: FHIR implementation
 		this.m_hl7Service = new HL7MpiClientServiceImpl();
 	}
 
 	/**
 	 * Search patient from wrapped
+	 * @throws NotSupportedException 
 	 */
 	@Override
 	public List<MpiPatient> searchPatient(String familyName, String givenName, Date dateOfBirth, boolean fuzzyDate,
 			String gender, String stateOrRegion, String cityOrTownship, PatientIdentifier patientIdentifier,
-			PatientIdentifier mothersIdentifier, String nextOfKinName, String birthPlace) throws MpiClientException {
+			PatientIdentifier mothersIdentifier, String nextOfKinName, String birthPlace) throws MpiClientException, NotSupportedException {
 		if(MpiClientConfiguration.getInstance().getMessageFormat().equals("fhir"))
-			return this.m_fhirService.searchPatient(familyName, givenName, dateOfBirth, fuzzyDate, gender, stateOrRegion, cityOrTownship, patientIdentifier, mothersIdentifier, nextOfKinName, birthPlace);
+			throw new NotSupportedException("Please use the correct MPI client module which contains FHIR support");
 		else 
 			return this.m_hl7Service.searchPatient(familyName, givenName, dateOfBirth, fuzzyDate, gender, stateOrRegion, cityOrTownship, patientIdentifier, mothersIdentifier, nextOfKinName, birthPlace);
 			
@@ -78,34 +79,37 @@ public class MpiClientServiceImpl extends BaseOpenmrsService
 
 	/**
 	 * Get patient using specified identifier and AA
+	 * @throws NotSupportedException 
 	 */
 	@Override
-	public MpiPatient getPatient(String identifier, String assigningAuthority) throws MpiClientException {
+	public MpiPatient getPatient(String identifier, String assigningAuthority) throws MpiClientException, NotSupportedException {
 		// TODO Auto-generated method stub
 		if(MpiClientConfiguration.getInstance().getMessageFormat().equals("fhir"))
-			return this.m_fhirService.getPatient(identifier, assigningAuthority);
+			throw new NotSupportedException("Please use the correct MPI client module which contains FHIR support");
 		else 
 			return this.m_hl7Service.getPatient(identifier, assigningAuthority);
 	}
 
 	/**
 	 * Resolve patient identifier 
+	 * @throws NotSupportedException 
 	 */
 	@Override
 	public PatientIdentifier resolvePatientIdentifier(Patient patient, String toAssigningAuthority)
-			throws MpiClientException {
+			throws MpiClientException, NotSupportedException {
 		// TODO Auto-generated method stub
 		if(MpiClientConfiguration.getInstance().getMessageFormat().equals("fhir"))
-			return this.m_fhirService.resolvePatientIdentifier(patient, toAssigningAuthority);
+			throw new NotSupportedException("Please use the correct MPI client module which contains FHIR support");
 		else 
 			return this.m_hl7Service.resolvePatientIdentifier(patient, toAssigningAuthority);
 	}
 
 	/**
 	 * Synchronize patient with enterprise identifier
+	 * @throws NotSupportedException 
 	 */
 	@Override
-	public void synchronizePatientEnterpriseId(Patient patient) throws MpiClientException {
+	public void synchronizePatientEnterpriseId(Patient patient) throws MpiClientException, NotSupportedException {
 		// Resolve patient identifier
 		PatientIdentifier pid = this.resolvePatientIdentifier(patient, MpiClientConfiguration.getInstance().getEnterprisePatientIdRoot());
 		if(pid != null)
@@ -130,12 +134,13 @@ public class MpiClientServiceImpl extends BaseOpenmrsService
 
 	/**
 	 * Import patient with specified patient data
+	 * @throws NotSupportedException 
 	 */
 	@Override
-	public Patient importPatient(MpiPatient patient) throws MpiClientException {
+	public Patient importPatient(MpiPatient patient) throws MpiClientException, NotSupportedException {
 		// TODO Auto-generated method stub
 		if(MpiClientConfiguration.getInstance().getMessageFormat().equals("fhir"))
-			return this.m_fhirService.importPatient(patient);
+			throw new NotSupportedException("Please use the correct MPI client module which contains FHIR support");
 		else 
 			return this.m_hl7Service.importPatient(patient);
 	}
@@ -176,36 +181,39 @@ public class MpiClientServiceImpl extends BaseOpenmrsService
 	
 	/**
 	 * Export patient using preferred messaging format
+	 * @throws NotSupportedException 
 	 */
 	@Override
-	public void exportPatient(Patient patient) throws MpiClientException {
+	public void exportPatient(Patient patient) throws MpiClientException, NotSupportedException {
 		// TODO Auto-generated method stub
 		if(MpiClientConfiguration.getInstance().getMessageFormat().equals("fhir"))
-			this.m_fhirService.exportPatient(patient);
+			throw new NotSupportedException("Please use the correct MPI client module which contains FHIR support");
 		else 
 			this.m_hl7Service.exportPatient(patient);
 	}
 
 	/**
 	 * Update patient in MPI
+	 * @throws NotSupportedException 
 	 */
 	@Override
-	public void updatePatient(Patient patient) throws MpiClientException {
+	public void updatePatient(Patient patient) throws MpiClientException, NotSupportedException {
 		// TODO Auto-generated method stub
 		if(MpiClientConfiguration.getInstance().getMessageFormat().equals("fhir"))
-			this.m_fhirService.updatePatient(patient);
+			throw new NotSupportedException("Please use the correct MPI client module which contains FHIR support");
 		else 
 			this.m_hl7Service.updatePatient(patient);
 	}
 
 	/**
 	 * GEt audit logger
+	 * @throws NotSupportedException 
 	 */
 	@Override
-	public AuditLogger getAuditLogger() {
+	public AuditLogger getAuditLogger() throws NotSupportedException {
 		// TODO Auto-generated method stub
 		if(MpiClientConfiguration.getInstance().getMessageFormat().equals("fhir"))
-			return this.m_fhirService.getAuditLogger();
+			throw new NotSupportedException("Please use the correct MPI client module which contains FHIR support");
 		else 
 			return this.m_hl7Service.getAuditLogger();
 	}
