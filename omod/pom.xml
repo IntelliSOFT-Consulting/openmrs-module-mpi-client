@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>santedb-mpiclient</artifactId>
-		<version>0.9.18-NOFHIR</version>
+		<version>0.9.18-JRE7</version>
 	</parent>
 
 	<artifactId>santedb-mpiclient-omod</artifactId>
