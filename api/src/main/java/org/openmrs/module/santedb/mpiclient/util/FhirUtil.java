@@ -19,6 +19,8 @@ import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Address.AddressUse;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.r4.model.HumanName.NameUse;
+import org.hl7.fhir.r4.model.Patient.PatientLinkComponent;
+import org.hl7.fhir.r4.model.codesystems.LinkType;
 import org.marc.everest.datatypes.TS;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -347,8 +349,33 @@ public class FhirUtil {
 	public MpiPatient parseFhirPatient(org.hl7.fhir.r4.model.Patient fhirPatient)
 	{
 		MpiPatient patient = new MpiPatient();
+		
+		// Patient identifiers
+		List<Identifier> patientIdentifiers = fhirPatient.getIdentifier();
+		String resourceIdentifier = fhirPatient.getIdElement().toUnqualifiedVersionless().getValue();
+		
+		// Is this patient linked to another patient?
+		if(fhirPatient.getLink() != null)
+			for(PatientLinkComponent lnk : fhirPatient.getLink())
+			{
+				if(LinkType.REFER.equals(lnk.getType())) {
+					try {
+						log.info(String.format("Getting linked patient data for %s", lnk.getOther().getId()));
+						org.hl7.fhir.r4.model.Patient linkedPat = (org.hl7.fhir.r4.model.Patient)lnk.getOtherTarget();
+						// Add any identifiers on the linked patient to the patient we're about to process
+						patientIdentifiers.addAll(linkedPat.getIdentifier());
+						// Fetch 
+						resourceIdentifier = linkedPat.getIdElement().toUnqualifiedVersionless().getValue();
+					}
+					catch(Exception e) {
+						log.warn(String.format("There was an error fetching the linked patient %s - %s", lnk.getOther().getId(), e.getMessage()));
+					}
+				}
+			}
+
+		
 		// Attempt to load a patient by identifier
-		for (Identifier id : fhirPatient.getIdentifier()) {
+		for (Identifier id : patientIdentifiers) {
 			// ID is a local identifier
 			if (this.m_configuration.getLocalPatientIdRoot().equals(id.getSystem())) {
 				if (StringUtils.isNumeric(id.getValue()))
@@ -381,12 +408,13 @@ public class FhirUtil {
 			}
 		}
 
+		
 		// Enterprise root? 
 		if(null != this.m_configuration.getEnterprisePatientIdRoot() && !this.m_configuration.getEnterprisePatientIdRoot().isEmpty())
 		{
 			Identifier fhirSysId = new Identifier();
 			fhirSysId.setSystem(this.m_configuration.getEnterprisePatientIdRoot());
-			fhirSysId.setValue(fhirPatient.getIdElement().toUnqualifiedVersionless().getValue());
+			fhirSysId.setValue(resourceIdentifier);
 			log.warn(String.format("Enterprise ID %s will be mapped", fhirPatient.getIdElement().toUnqualifiedVersionless().getValue()));
 			PatientIdentifier sysId = this.interpretFhirId(fhirSysId);
 			if(sysId != null) {
